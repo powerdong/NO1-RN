@@ -1,16 +1,28 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:14:33
- * @Update: 2020-06-15 11:15:16
+ * @Update: 2020-06-15 19:14:00
  * @Update log: 更新日志
  */
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, Button} from 'react-native';
 
 const Trending = props => {
+  const {navigation} = props;
   return (
     <View style={styles.container}>
       <Text>Trending页面</Text>
+      <Button
+        title="改变主题色"
+        onPress={() => {
+          navigation.setParams({
+            theme: {
+              tintColor: 'red',
+              updateTime: new Date().getTime(),
+            },
+          });
+        }}
+      />
     </View>
   );
 };

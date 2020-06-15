@@ -1,18 +1,11 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 09:04:07
- * @Update: 2020-06-15 16:41:01
+ * @Update: 2020-06-15 17:40:23
  * @Update log: 更新日志
  */
-import React from 'react';
 import {createSwitchNavigator, createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-import {
-  createBottomTabNavigator,
-  createMaterialTopTabNavigator,
-} from 'react-navigation-tabs';
-// createBottomTabNavigator(RouteConfigs, TabNavigatorConfig);
-// createMaterialTopTabNavigator(RouteConfigs, TabNavigatorConfig);
 
 import WelcomePage from '../page/WelcomePage';
 import HomePage from '../page/HomePage';
@@ -41,27 +34,6 @@ const MainNavigator = createStackNavigator({
     },
   },
 });
-
-// const TopTab = createMaterialTopTabNavigator();
-// const BottomTab = createBottomTabNavigator();
-
-// function MyTopTabs() {
-//   return (
-//     <TopTab.Navigator>
-//       <TopTab.Screen name="Home" component={HomeScreen} />
-//       <TopTab.Screen name="Settings" component={SettingsScreen} />
-//     </TopTab.Navigator>
-//   );
-// }
-
-// function MyBottomTabs() {
-//   return (
-//     <BottomTab.Navigator>
-//       <BottomTab.Screen name="Home" component={HomeScreen} />
-//       <BottomTab.Screen name="Settings" component={SettingsScreen} />
-//     </BottomTab.Navigator>
-//   );
-// }
 
 export default createAppContainer(
   createSwitchNavigator(
