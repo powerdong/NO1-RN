@@ -1,15 +1,22 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 09:04:07
- * @Update: 2020-06-15 17:40:23
+ * @Update: 2020-06-16 20:04:41
  * @Update log: 更新日志
  */
 import {createSwitchNavigator, createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
+import {connect} from 'react-redux';
+import {
+  createReduxContainer,
+  createReactNavigationReduxMiddleware,
+} from 'react-navigation-redux-helpers';
 
 import WelcomePage from '../page/WelcomePage';
 import HomePage from '../page/HomePage';
 import DetailPage from '../page/DetailPage';
+
+export const rootCom = 'Init'; // 设置根路由
 
 const InitNavigator = createStackNavigator({
   WelcomePage: {
@@ -35,7 +42,7 @@ const MainNavigator = createStackNavigator({
   },
 });
 
-export default createAppContainer(
+export const RootNavigator = createAppContainer(
   createSwitchNavigator(
     {
       Init: InitNavigator,
@@ -48,3 +55,15 @@ export default createAppContainer(
     },
   ),
 );
+
+export const middleware = createReactNavigationReduxMiddleware(
+  state => state.nav,
+  'root',
+);
+
+const AppNavigation = createReduxContainer(RootNavigator, 'root');
+const mapStateToProps = state => ({
+  state: state.nav,
+});
+
+export default connect(mapStateToProps)(AppNavigation);
