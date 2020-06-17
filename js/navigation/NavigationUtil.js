@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:06:20
- * @Update: 2020-06-16 20:37:29
+ * @Update: 2020-06-17 09:49:31
  * @Update log: 全局导航跳转工具类
  */
 export default class NavigationUtil {
@@ -25,8 +25,7 @@ export default class NavigationUtil {
    * @param page 要跳转的页面名
    */
   static goPage(params, page) {
-    console.log('page: ', page);
-    const {navigation} = params;
+    const navigation = NavigationUtil.navigation;
     if (!navigation) {
       console.log('navigation can not be null');
       return;
