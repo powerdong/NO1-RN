@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 09:04:07
- * @Update: 2020-06-17 09:54:07
+ * @Update: 2020-06-17 13:35:52
  * @Update log: 更新日志
  */
 import {createSwitchNavigator, createAppContainer} from 'react-navigation';
@@ -15,6 +15,9 @@ import {
 import WelcomePage from '../page/WelcomePage';
 import HomePage from '../page/HomePage';
 import DetailPage from '../page/DetailPage';
+import FetchDemoPage from '../page/FetchDemoPage';
+import AsyncStorageDemoPage from '../page/AsyncStorageDemoPage';
+import DataStoreDemoPage from '../page/DataStoreDemoPage';
 
 export const rootCom = 'Init'; // 设置根路由
 
@@ -36,6 +39,24 @@ const MainNavigator = createStackNavigator({
   },
   DetailPage: {
     screen: DetailPage,
+    navigationOptions: {
+      // headerShown: false,
+    },
+  },
+  FetchDemoPage: {
+    screen: FetchDemoPage,
+    navigationOptions: {
+      // headerShown: false,
+    },
+  },
+  AsyncStorageDemoPage: {
+    screen: AsyncStorageDemoPage,
+    navigationOptions: {
+      // headerShown: false,
+    },
+  },
+  DataStoreDemoPage: {
+    screen: DataStoreDemoPage,
     navigationOptions: {
       // headerShown: false,
     },

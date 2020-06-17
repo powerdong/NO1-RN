@@ -1,11 +1,11 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-17 09:24:38
+ * @Update: 2020-06-17 13:36:22
  * @Update log: 更新日志
  */
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Button} from 'react-native';
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
 import NavigationUtil from '../navigation/NavigationUtil';
 const PopularTab = props => {
@@ -23,6 +23,39 @@ const PopularTab = props => {
         }}>
         跳转详情页
       </Text>
+      <Button
+        title="跳转FetchDemoPage"
+        onPress={() => {
+          NavigationUtil.goPage(
+            {
+              navigation: props.navigation,
+            },
+            'FetchDemoPage',
+          );
+        }}
+      />
+      <Button
+        title="跳转AsyncStorageDemoPage"
+        onPress={() => {
+          NavigationUtil.goPage(
+            {
+              navigation: props.navigation,
+            },
+            'AsyncStorageDemoPage',
+          );
+        }}
+      />
+      <Button
+        title="跳转DataStoreDemoPage"
+        onPress={() => {
+          NavigationUtil.goPage(
+            {
+              navigation: props.navigation,
+            },
+            'DataStoreDemoPage',
+          );
+        }}
+      />
     </View>
   );
 };
