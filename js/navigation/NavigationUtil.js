@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:06:20
- * @Update: 2020-06-17 09:49:31
+ * @Update: 2020-06-17 15:32:39
  * @Update log: 全局导航跳转工具类
  */
 export default class NavigationUtil {

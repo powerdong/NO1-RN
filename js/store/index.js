@@ -1,11 +1,12 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-16 17:00:03
- * @Update: 2020-06-16 20:08:45
+ * @Update: 2020-06-17 15:59:32
  * @Update log: 更新日志
  */
 import {createStore, applyMiddleware} from 'redux';
 import reducers from '../reducer';
+import thunk from 'redux-thunk';
 import {middleware} from '../navigation/AppNavigator';
 
 const logger = store => next => action => {
@@ -18,7 +19,7 @@ const logger = store => next => action => {
   console.log(`nextState${store.getState()}`);
 };
 
-const middlewares = [middleware, logger];
+const middlewares = [middleware, thunk];
 
 const store = createStore(reducers, applyMiddleware(...middlewares));
 

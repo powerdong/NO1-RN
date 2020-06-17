@@ -1,60 +1,114 @@
+/* eslint-disable react-native/no-inline-styles */
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-17 13:36:22
+ * @Update: 2020-06-17 19:25:48
  * @Update log: 更新日志
  */
-import React from 'react';
-import {View, Text, Button} from 'react-native';
+import React, {useEffect, useCallback} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+} from 'react-native';
+import {connect} from 'react-redux';
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
-import NavigationUtil from '../navigation/NavigationUtil';
+import actions from '../action';
+import PopularItem from '../common/PopularItem';
+
+const URL = 'https://api.github.com/search/repositories?q=';
+const QUERY_STR = '&sort=stars';
+const THEME_COLOR = 'red';
+
 const PopularTab = props => {
+  const pageSize = 10;
+  const {tabLabel, onRefreshPopular, onLoadMorePopular, popular} = props;
+  const storeName = tabLabel;
+  const _store = useCallback(() => {
+    let _storeShow = popular[storeName];
+    if (!_storeShow) {
+      _storeShow = {
+        items: [],
+        isLoading: false,
+        projectModes: [], // 要显示的数据,
+        hideLoadingMore: true, // 默认隐藏加载更多
+      };
+    }
+    return _storeShow;
+  }, [popular, storeName]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const loadData = useCallback(
+    loadMore => {
+      const _storeLoadData = _store();
+      const url = genFetchUrl(storeName);
+      if (loadMore) {
+        onLoadMorePopular(
+          storeName,
+          ++_storeLoadData.pageIndex,
+          pageSize,
+          _storeLoadData.items,
+          callback => {},
+        );
+      } else {
+        onRefreshPopular(storeName, url, pageSize);
+      }
+    },
+    [_store, onLoadMorePopular, onRefreshPopular, storeName],
+  );
+
+  const genFetchUrl = key => {
+    return URL + key + QUERY_STR;
+  };
+
+  const renderItem = data => {
+    return <PopularItem item={data.item} onSelect={() => {}} />;
+  };
+
+  const genIndicator = () => {
+    return _store().hideLoadingMore ? null : (
+      <View
+        style={{
+          alignItems: 'center',
+        }}>
+        <ActivityIndicator
+          style={{
+            color: 'red',
+            margin: 10,
+          }}
+        />
+        <Text>正在加载更多</Text>
+      </View>
+    );
+  };
+
+  let store = _store(); // 动态获取 state
   return (
     <View>
-      <Text>{props.tabLabel}</Text>
-      <Text
-        onPress={() => {
-          NavigationUtil.goPage(
-            {
-              navigation: props.navigation,
-            },
-            'DetailPage',
-          );
-        }}>
-        跳转详情页
-      </Text>
-      <Button
-        title="跳转FetchDemoPage"
-        onPress={() => {
-          NavigationUtil.goPage(
-            {
-              navigation: props.navigation,
-            },
-            'FetchDemoPage',
-          );
+      <FlatList
+        data={store.projectModes}
+        renderItem={data => renderItem(data)}
+        keyExtractor={item => '' + item.id}
+        refreshControl={
+          <RefreshControl
+            title="loading"
+            titleColor={THEME_COLOR}
+            colors={[THEME_COLOR]}
+            refreshing={store.isLoading}
+            onRefresh={() => loadData()}
+            tintColor={THEME_COLOR}
+          />
+        }
+        ListEmptyComponent={() => genIndicator()}
+        onEndReached={() => {
+          loadData(true);
         }}
-      />
-      <Button
-        title="跳转AsyncStorageDemoPage"
-        onPress={() => {
-          NavigationUtil.goPage(
-            {
-              navigation: props.navigation,
-            },
-            'AsyncStorageDemoPage',
-          );
-        }}
-      />
-      <Button
-        title="跳转DataStoreDemoPage"
-        onPress={() => {
-          NavigationUtil.goPage(
-            {
-              navigation: props.navigation,
-            },
-            'DataStoreDemoPage',
-          );
-        }}
+        onEndReachedThreshold={0.5}
       />
     </View>
   );
@@ -67,7 +121,7 @@ const getTabs = () => {
   tabNames.forEach((item, index) => {
     tabs[`tab${index}`] = {
       // 通过这种方式给页面进行传值
-      screen: props => <PopularTab {...props} tabLabel={item} />,
+      screen: props => <PopularTabPage {...props} tabLabel={item} />,
       navigationOptions: {
         title: item,
       },
@@ -99,5 +153,28 @@ const PopularPage = createMaterialTopTabNavigator(getTabs(), {
     },
   },
 });
+
+const mapStateToProps = state => ({
+  popular: state.popular,
+});
+const mapDispatchToProps = dispatch => ({
+  onRefreshPopular: (storeName, url, pageSize) =>
+    dispatch(actions.onRefreshPopular(storeName, url, pageSize)),
+  onLoadMorePopular: (storeName, pageIndex, pageSize, items, callback) =>
+    dispatch(
+      actions.onLoadMorePopular(
+        storeName,
+        pageIndex,
+        pageSize,
+        items,
+        callback,
+      ),
+    ),
+});
+
+const PopularTabPage = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PopularTab);
 
 export default PopularPage;

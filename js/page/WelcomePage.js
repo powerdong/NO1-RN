@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 08:48:59
- * @Update: 2020-06-15 11:13:18
+ * @Update: 2020-06-17 15:33:24
  * @Update log: 更新日志
  */
 import React, {useEffect, useRef} from 'react';
@@ -16,7 +16,7 @@ const WelcomePage = props => {
       NavigationUtil.resetToHomePage({
         navigation: props.navigation,
       });
-    }, 2000);
+    }, 200);
     return () => {
       timer.current && clearTimeout(timer.current);
     };
