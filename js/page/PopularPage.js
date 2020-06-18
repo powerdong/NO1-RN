@@ -2,10 +2,10 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-17 19:25:48
+ * @Update: 2020-06-18 09:07:28
  * @Update log: 更新日志
  */
-import React, {useEffect, useCallback} from 'react';
+import React, {useEffect, useCallback, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
+import Toast from 'react-native-easy-toast';
 import actions from '../action';
 import PopularItem from '../common/PopularItem';
 
@@ -26,6 +27,8 @@ const PopularTab = props => {
   const pageSize = 10;
   const {tabLabel, onRefreshPopular, onLoadMorePopular, popular} = props;
   const storeName = tabLabel;
+  const toast = useRef(null);
+  const [canLoadMore, setCanLoadMore] = useState(true);
   const _store = useCallback(() => {
     let _storeShow = popular[storeName];
     if (!_storeShow) {
@@ -36,6 +39,7 @@ const PopularTab = props => {
         hideLoadingMore: true, // 默认隐藏加载更多
       };
     }
+    console.log('_storeShow: ', _storeShow.hideLoadingMore);
     return _storeShow;
   }, [popular, storeName]);
 
@@ -53,7 +57,9 @@ const PopularTab = props => {
           ++_storeLoadData.pageIndex,
           pageSize,
           _storeLoadData.items,
-          callback => {},
+          callback => {
+            toast.current.show('没有更多了');
+          },
         );
       } else {
         onRefreshPopular(storeName, url, pageSize);
@@ -104,12 +110,25 @@ const PopularTab = props => {
             tintColor={THEME_COLOR}
           />
         }
-        ListEmptyComponent={() => genIndicator()}
+        // =====上拉加载更多======
+        ListFooterComponent={() => genIndicator()}
         onEndReached={() => {
-          loadData(true);
+          console.log('----onEndReached----');
+          setTimeout(() => {
+            if (canLoadMore) {
+              //fix 滚动时两次调用onEndReached https://github.com/facebook/react-native/issues/14015
+              loadData(true);
+              setCanLoadMore(false);
+            }
+          }, 100);
         }}
         onEndReachedThreshold={0.5}
+        onMomentumScrollBegin={() => {
+          setCanLoadMore(true);
+          console.log('---onMomentumScrollBegin-----');
+        }}
       />
+      <Toast ref={toast} position="center" />
     </View>
   );
 };

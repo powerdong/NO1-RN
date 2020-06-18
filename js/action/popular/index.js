@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-17 14:00:30
- * @Update: 2020-06-17 18:43:09
+ * @Update: 2020-06-18 08:42:15
  * @Update log: 更新日志
  */
 import Types from '../types';
@@ -48,6 +48,7 @@ export function onLoadMorePopular(
     setTimeout(() => {
       if ((pageIndex - 1) * pageSize >= dataArray.length) {
         // 已加载完全部数据
+        console.log('已加载完全部数据: ');
         if (typeof callBack === 'function') {
           callBack('no more');
         }
@@ -64,6 +65,7 @@ export function onLoadMorePopular(
           pageSize * pageIndex > dataArray.length
             ? dataArray.length
             : pageSize * pageIndex;
+        console.log('max: ', max);
         dispatch({
           type: Types.POPULAR_LOAD_MORE_SUCCESS,
           storeName,
@@ -92,6 +94,7 @@ const handleData = (dispatch, storeName, data, pageSize) => {
     projectModes:
       pageSize > fixItems.length ? fixItems : fixItems.slice(0, pageSize), // 第一次要加载的数据
     storeName,
+    items: fixItems,
     pageIndex: 1,
   });
 };
