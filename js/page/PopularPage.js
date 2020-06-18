@@ -1,8 +1,7 @@
-/* eslint-disable react-native/no-inline-styles */
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-18 09:07:28
+ * @Update: 2020-06-18 10:45:16
  * @Update log: 更新日志
  */
 import React, {useEffect, useCallback, useRef, useState} from 'react';
@@ -12,72 +11,75 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import {connect} from 'react-redux';
+import {createAppContainer} from 'react-navigation';
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
 import Toast from 'react-native-easy-toast';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import actions from '../action';
+import AnalyticsUtil from '../util/AnalyticsUtil';
+import NavigationUtil from '../navigation/NavigationUtil';
 import PopularItem from '../common/PopularItem';
+import NavigationBar from '../common/NavigationBar';
 
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
-const THEME_COLOR = 'red';
+const THEME_COLOR = '#678';
+const PAGE_SIZE = 10;
 
+// 获取数据函数
+const _store = (popular, storeName) => {
+  let _storeShow = popular[storeName];
+  if (!_storeShow) {
+    _storeShow = {
+      items: [],
+      isLoading: false,
+      projectModes: [], // 要显示的数据,
+      hideLoadingMore: true, // 默认隐藏加载更多
+    };
+  }
+  return _storeShow;
+};
+
+// 热门页面的数据
 const PopularTab = props => {
-  const pageSize = 10;
+  // 默认每页先显示 10项
   const {tabLabel, onRefreshPopular, onLoadMorePopular, popular} = props;
   const storeName = tabLabel;
   const toast = useRef(null);
   const [canLoadMore, setCanLoadMore] = useState(true);
-  const _store = useCallback(() => {
-    let _storeShow = popular[storeName];
-    if (!_storeShow) {
-      _storeShow = {
-        items: [],
-        isLoading: false,
-        projectModes: [], // 要显示的数据,
-        hideLoadingMore: true, // 默认隐藏加载更多
-      };
-    }
-    console.log('_storeShow: ', _storeShow.hideLoadingMore);
-    return _storeShow;
-  }, [popular, storeName]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
+  // 请求数据
   const loadData = useCallback(
     loadMore => {
-      const _storeLoadData = _store();
-      const url = genFetchUrl(storeName);
+      const _storeLoadData = _store(popular, storeName);
+      const url = `${URL}${storeName}${QUERY_STR}`;
       if (loadMore) {
         onLoadMorePopular(
           storeName,
           ++_storeLoadData.pageIndex,
-          pageSize,
+          PAGE_SIZE,
           _storeLoadData.items,
-          callback => {
+          () => {
             toast.current.show('没有更多了');
           },
         );
       } else {
-        onRefreshPopular(storeName, url, pageSize);
+        onRefreshPopular(storeName, url, PAGE_SIZE);
       }
     },
-    [_store, onLoadMorePopular, onRefreshPopular, storeName],
+    [onLoadMorePopular, onRefreshPopular, popular, storeName],
   );
 
-  const genFetchUrl = key => {
-    return URL + key + QUERY_STR;
-  };
-
-  const renderItem = data => {
-    return <PopularItem item={data.item} onSelect={() => {}} />;
-  };
-
+  // 底部加载更多组件
   const genIndicator = () => {
-    return _store().hideLoadingMore ? null : (
+    return _store(popular, storeName).hideLoadingMore ? null : (
       <View
         style={{
           alignItems: 'center',
@@ -93,19 +95,22 @@ const PopularTab = props => {
     );
   };
 
-  let store = _store(); // 动态获取 state
   return (
     <View>
       <FlatList
-        data={store.projectModes}
-        renderItem={data => renderItem(data)}
+        data={_store(popular, storeName).projectModes}
+        // 每项 Item
+        renderItem={data => (
+          <PopularItem item={data.item} onSelect={() => {}} />
+        )}
         keyExtractor={item => '' + item.id}
+        // 下拉刷新
         refreshControl={
           <RefreshControl
             title="loading"
             titleColor={THEME_COLOR}
             colors={[THEME_COLOR]}
-            refreshing={store.isLoading}
+            refreshing={_store(popular, storeName).isLoading}
             onRefresh={() => loadData()}
             tintColor={THEME_COLOR}
           />
@@ -125,7 +130,6 @@ const PopularTab = props => {
         onEndReachedThreshold={0.5}
         onMomentumScrollBegin={() => {
           setCanLoadMore(true);
-          console.log('---onMomentumScrollBegin-----');
         }}
       />
       <Toast ref={toast} position="center" />
@@ -133,8 +137,10 @@ const PopularTab = props => {
   );
 };
 
+// 配置要显示的 tab
 const tabNames = ['Java', 'Android', 'iOS', 'React', 'React Native', 'PHP'];
 
+// 筛选出顶部要渲染的 Tab
 const getTabs = () => {
   const tabs = {};
   tabNames.forEach((item, index) => {
@@ -149,7 +155,8 @@ const getTabs = () => {
   return tabs;
 };
 
-const PopularPage = createMaterialTopTabNavigator(getTabs(), {
+// 配置顶部导航栏
+const PopularPageTopNavigator = createMaterialTopTabNavigator(getTabs(), {
   tabBarOptions: {
     tabStyle: {
       minWidth: 50,
@@ -176,6 +183,7 @@ const PopularPage = createMaterialTopTabNavigator(getTabs(), {
 const mapStateToProps = state => ({
   popular: state.popular,
 });
+
 const mapDispatchToProps = dispatch => ({
   onRefreshPopular: (storeName, url, pageSize) =>
     dispatch(actions.onRefreshPopular(storeName, url, pageSize)),
@@ -196,4 +204,60 @@ const PopularTabPage = connect(
   mapDispatchToProps,
 )(PopularTab);
 
-export default PopularPage;
+const PopularPage = props => {
+  const {keys, theme} = props;
+
+  const renderRightButton = () => (
+    <TouchableOpacity
+      onPress={() => {
+        AnalyticsUtil.track('SearchButtonClick');
+        NavigationUtil.goPage({theme}, 'SearchPage');
+      }}>
+      <View style={{padding: 5, marginRight: 8}}>
+        <Ionicons
+          name={'ios-search'}
+          size={24}
+          style={{
+            marginRight: 8,
+            alignSelf: 'center',
+            color: 'white',
+          }}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+  let statusBar = {
+    backgroundColor: THEME_COLOR,
+    barStyle: 'light-content',
+  };
+  let navigationBar = (
+    <NavigationBar
+      title={'最热'}
+      statusBar={statusBar}
+      style={{
+        backgroundColor: THEME_COLOR,
+      }}
+      rightButton={renderRightButton()}
+    />
+  );
+  const TabNavigator = createAppContainer(PopularPageTopNavigator);
+  return (
+    <View style={{flex: 1}}>
+      {navigationBar}
+      <TabNavigator />
+    </View>
+  );
+};
+
+const mapPopularStateToProps = state => ({
+  keys: state.language.keys,
+  theme: state.theme.theme,
+});
+const mapPopularDispatchToProps = dispatch => ({
+  onLoadLanguage: flag => dispatch(actions.onLoadLanguage(flag)),
+});
+
+export default connect(
+  mapPopularStateToProps,
+  mapPopularDispatchToProps,
+)(PopularPage);

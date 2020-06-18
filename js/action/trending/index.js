@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
- * @Begin: 2020-06-17 14:00:30
- * @Update: 2020-06-18 11:16:10
+ * @Begin: 2020-06-18 11:09:07
+ * @Update: 2020-06-18 11:17:31
  * @Update log: 更新日志
  */
 import Types from '../types';
@@ -13,16 +13,16 @@ import {handleData} from '../ActionUtil';
  * @param {string} url 接口 url
  * @param {string} pageSize 每页展示多少条数据
  */
-export function onRefreshPopular(storeName, url, pageSize) {
+export function onRefreshTrending(storeName, url, pageSize) {
   return dispatch => {
-    dispatch({type: Types.POPULAR_REFRESH, storeName});
+    dispatch({type: Types.TRENDING_REFRESH, storeName});
     let dataStore = new DataStore();
     dataStore
-      .fetchData(url, FLAG_STORAGE.flag_popular)
+      .fetchData(url, FLAG_STORAGE.flag_trending)
       .then(data => {
         // 异步 action 与数据流
         handleData(
-          Types.POPULAR_REFRESH_SUCCESS,
+          Types.TRENDING_REFRESH_SUCCESS,
           dispatch,
           storeName,
           data,
@@ -44,7 +44,7 @@ export function onRefreshPopular(storeName, url, pageSize) {
  * @param {Array} dataArray 原始数据
  * @param {Function} callBack 回调函数
  */
-export function onLoadMorePopular(
+export function onLoadMoreTrending(
   storeName,
   pageIndex,
   pageSize,
@@ -60,7 +60,7 @@ export function onLoadMorePopular(
           callBack('no more');
         }
         dispatch({
-          type: Types.POPULAR_LOAD_MORE_FAIL,
+          type: Types.TRENDING_LOAD_MORE_FAIL,
           error: 'no more',
           storeName,
           pageIndex: --pageIndex,
@@ -74,7 +74,7 @@ export function onLoadMorePopular(
             : pageSize * pageIndex;
         console.log('max: ', max);
         dispatch({
-          type: Types.POPULAR_LOAD_MORE_SUCCESS,
+          type: Types.TRENDING_LOAD_MORE_SUCCESS,
           storeName,
           pageIndex,
           projectModes: dataArray.slice(0, max),

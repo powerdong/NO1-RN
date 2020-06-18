@@ -1,15 +1,15 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-17 16:47:29
- * @Update: 2020-06-18 09:51:06
+ * @Update: 2020-06-18 14:27:50
  * @Update log: 热门项目每个项目的卡片
  */
 import React from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 
-const PopularItem = ({item, onSelect}) => {
-  if (!item || !item.owner) {
+const TrendingItem = ({item, onSelect}) => {
+  if (!item) {
     return null;
   }
   let favoriteButton = (
@@ -66,15 +66,18 @@ const PopularItem = ({item, onSelect}) => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            <Text>Author:</Text>
-            <Image
-              style={{height: 22, width: 22}}
-              source={{uri: item.owner.avatar_url}}
-            />
+            <Text>Build by:</Text>
+            {item.contributors.map((item, i, arr) => (
+              <Image
+                key={i}
+                style={{height: 22, width: 22, margin: 2}}
+                source={{uri: arr[i]}}
+              />
+            ))}
           </View>
           <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
             <Text>Start:</Text>
-            <Text>{item.stargazers_count}</Text>
+            <Text>{item.starCount}</Text>
           </View>
           {favoriteButton}
         </View>
@@ -83,4 +86,4 @@ const PopularItem = ({item, onSelect}) => {
   );
 };
 
-export default PopularItem;
+export default TrendingItem;
