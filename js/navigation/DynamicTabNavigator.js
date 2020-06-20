@@ -1,10 +1,10 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 16:45:04
- * @Update: 2020-06-17 15:36:29
+ * @Update: 2020-06-20 18:52:36
  * @Update log: 更新日志
  */
-import React, {useState} from 'react';
+import React from 'react';
 import {createAppContainer} from 'react-navigation';
 import {createBottomTabNavigator, BottomTabBar} from 'react-navigation-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';

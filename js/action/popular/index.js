@@ -1,19 +1,19 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-17 14:00:30
- * @Update: 2020-06-18 11:16:10
+ * @Update: 2020-06-20 16:52:55
  * @Update log: 更新日志
  */
 import Types from '../types';
 import DataStore, {FLAG_STORAGE} from '../../expand/dao/DataStore';
-import {handleData} from '../ActionUtil';
+import {handleData, _projectModels} from '../ActionUtil';
 /**
  * 获取最热数据的异步 action
  * @param {string} storeName tab 名
  * @param {string} url 接口 url
  * @param {string} pageSize 每页展示多少条数据
  */
-export function onRefreshPopular(storeName, url, pageSize) {
+export function onRefreshPopular(storeName, url, pageSize, favoriteDao) {
   return dispatch => {
     dispatch({type: Types.POPULAR_REFRESH, storeName});
     let dataStore = new DataStore();
@@ -27,6 +27,7 @@ export function onRefreshPopular(storeName, url, pageSize) {
           storeName,
           data,
           pageSize,
+          favoriteDao,
         );
       })
       .catch(err => {
@@ -49,6 +50,7 @@ export function onLoadMorePopular(
   pageIndex,
   pageSize,
   dataArray = [],
+  favoriteDao,
   callBack,
 ) {
   return dispatch => {
@@ -72,14 +74,37 @@ export function onLoadMorePopular(
           pageSize * pageIndex > dataArray.length
             ? dataArray.length
             : pageSize * pageIndex;
-        console.log('max: ', max);
-        dispatch({
-          type: Types.POPULAR_LOAD_MORE_SUCCESS,
-          storeName,
-          pageIndex,
-          projectModes: dataArray.slice(0, max),
+        _projectModels(dataArray.slice(0, max), favoriteDao, data => {
+          dispatch({
+            type: Types.POPULAR_LOAD_MORE_SUCCESS,
+            storeName,
+            pageIndex,
+            projectModels: data,
+          });
         });
       }
     }, 500);
   };
 }
+
+export const onFlushPopularFavorite = (
+  storeName,
+  pageIndex,
+  pageSize,
+  dataArray = [],
+  favoriteDao,
+) => dispatch => {
+  // 本次和载入的最大数量
+  let max =
+    pageSize * pageIndex > dataArray.length
+      ? dataArray.length
+      : pageSize * pageIndex;
+  _projectModels(dataArray.slice(0, max), favoriteDao, data => {
+    dispatch({
+      type: Types.FLUSH_POPULAR_FAVORITE,
+      storeName,
+      pageIndex,
+      projectModels: data,
+    });
+  });
+};

@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-20 08:43:24
+ * @Update: 2020-06-20 16:58:59
  * @Update log: 更新日志
  */
 import React, {useEffect, useCallback, useRef, useState} from 'react';
@@ -18,17 +18,23 @@ import {createAppContainer} from 'react-navigation';
 import {createMaterialTopTabNavigator} from 'react-navigation-tabs';
 import Toast from 'react-native-easy-toast';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import EventBus from 'react-native-event-bus';
+
 import actions from '../action';
 import AnalyticsUtil from '../util/AnalyticsUtil';
 import NavigationUtil from '../navigation/NavigationUtil';
 import PopularItem from '../common/PopularItem';
 import NavigationBar from '../common/NavigationBar';
+import FavoriteDao from '../expand/dao/FavoriteDao';
+import {FLAG_STORAGE} from '../expand/dao/DataStore';
+import FavoriteUtil from '../util/FavoriteUtil';
+import EventTypes from '../util/EventTypes';
 
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
 const THEME_COLOR = '#678';
 const PAGE_SIZE = 10;
-
+const favoriteDao = new FavoriteDao(FLAG_STORAGE.flag_popular);
 // 获取数据函数
 const _store = (popular, storeName) => {
   let _storeShow = popular[storeName];
@@ -46,18 +52,45 @@ const _store = (popular, storeName) => {
 // 热门页面的数据
 const PopularTab = props => {
   // 默认每页先显示 10项
-  const {tabLabel, onRefreshPopular, onLoadMorePopular, popular} = props;
+  const {
+    tabLabel,
+    onRefreshPopular,
+    onLoadMorePopular,
+    popular,
+    onFlushPopularFavorite,
+  } = props;
   const storeName = tabLabel;
+  const favoriteChangeListener = useRef(null);
+  const bottomTabSelectListener = useRef(null);
   const toast = useRef(null);
   const [canLoadMore, setCanLoadMore] = useState(true);
+  const [isFavoriteChanged, setIsFavoriteChanged] = useState(false);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    EventBus.getInstance().addListener(
+      EventTypes.favorite_changed_popular,
+      (favoriteChangeListener.current = () => {
+        setIsFavoriteChanged(true);
+      }),
+    );
+    EventBus.getInstance().addListener(
+      EventTypes.bottom_tab_select,
+      (bottomTabSelectListener.current = data => {
+        if (data.to === 0 && isFavoriteChanged) {
+          loadData(null, true);
+        }
+      }),
+    );
+    return () => {
+      EventBus.getInstance().removeListener(favoriteChangeListener);
+      EventBus.getInstance().removeListener(bottomTabSelectListener);
+    };
+  }, [isFavoriteChanged, loadData]);
 
   // 请求数据
   const loadData = useCallback(
-    loadMore => {
+    (loadMore, refreshFavorite) => {
       const _storeLoadData = _store(popular, storeName);
       const url = `${URL}${storeName}${QUERY_STR}`;
       if (loadMore) {
@@ -66,15 +99,30 @@ const PopularTab = props => {
           ++_storeLoadData.pageIndex,
           PAGE_SIZE,
           _storeLoadData.items,
+          favoriteDao,
           () => {
             toast.current.show('没有更多了');
           },
         );
+      } else if (refreshFavorite) {
+        onFlushPopularFavorite(
+          storeName,
+          _storeLoadData.pageIndex,
+          _storeLoadData.pageSize,
+          _storeLoadData.items,
+          favoriteDao,
+        );
       } else {
-        onRefreshPopular(storeName, url, PAGE_SIZE);
+        onRefreshPopular(storeName, url, PAGE_SIZE, favoriteDao);
       }
     },
-    [onLoadMorePopular, onRefreshPopular, popular, storeName],
+    [
+      onFlushPopularFavorite,
+      onLoadMorePopular,
+      onRefreshPopular,
+      popular,
+      storeName,
+    ],
   );
 
   // 底部加载更多组件
@@ -102,18 +150,28 @@ const PopularTab = props => {
         // 每项 Item
         renderItem={data => (
           <PopularItem
-            item={data.item}
-            onSelect={() => {
+            projectModel={data.item}
+            onSelect={callback => {
               NavigationUtil.goPage(
                 {
                   projectModel: data.item,
+                  flag: FLAG_STORAGE.flag_popular,
+                  callback,
                 },
                 'DetailPage',
               );
             }}
+            onFavorite={(item, isFavorite) => {
+              FavoriteUtil.onFavorite(
+                favoriteDao,
+                item,
+                isFavorite,
+                FLAG_STORAGE.flag_popular,
+              );
+            }}
           />
         )}
-        keyExtractor={item => '' + item.id}
+        keyExtractor={item => '' + item.item.id}
         // 下拉刷新
         refreshControl={
           <RefreshControl
@@ -195,15 +253,39 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  onRefreshPopular: (storeName, url, pageSize) =>
-    dispatch(actions.onRefreshPopular(storeName, url, pageSize)),
-  onLoadMorePopular: (storeName, pageIndex, pageSize, items, callback) =>
+  onFlushPopularFavorite: (
+    storeName,
+    pageIndex,
+    pageSize,
+    dataArray,
+    _favoriteDao,
+  ) =>
+    dispatch(
+      actions.onFlushPopularFavorite(
+        storeName,
+        pageIndex,
+        pageSize,
+        dataArray,
+        _favoriteDao,
+      ),
+    ),
+  onRefreshPopular: (storeName, url, pageSize, _favoriteDao) =>
+    dispatch(actions.onRefreshPopular(storeName, url, pageSize, _favoriteDao)),
+  onLoadMorePopular: (
+    storeName,
+    pageIndex,
+    pageSize,
+    items,
+    _favoriteDao,
+    callback,
+  ) =>
     dispatch(
       actions.onLoadMorePopular(
         storeName,
         pageIndex,
         pageSize,
         items,
+        _favoriteDao,
         callback,
       ),
     ),
@@ -215,7 +297,8 @@ const PopularTabPage = connect(
 )(PopularTab);
 
 const PopularPage = props => {
-  const {keys, theme} = props;
+  // const {keys, theme} = props;
+  const {theme} = props;
 
   const renderRightButton = () => (
     <TouchableOpacity

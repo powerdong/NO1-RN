@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 09:26:45
- * @Update: 2020-06-20 10:01:45
+ * @Update: 2020-06-20 14:31:52
  * @Update log: 更新日志
  */
 import React, {useState, useRef, useEffect} from 'react';
@@ -11,10 +11,17 @@ import {WebView} from 'react-native-webview';
 import NavigationBar from '../common/NavigationBar';
 import NavigationUtil from '../navigation/NavigationUtil';
 import ViewUtil from '../util/ViewUtil';
+import FavoriteDao from '../expand/dao/FavoriteDao';
 const TRENDING_URL = 'https://github.com';
 
 const DetailPage = props => {
+  const params = props.navigation.state.params;
+  const {projectModel, flag, callback} = params;
+  const favoriteDao = new FavoriteDao(flag);
+  const _url =
+    projectModel.item.html_url || TRENDING_URL + projectModel.item.fullName;
   const [url, setUrl] = useState(_url);
+  const [isFavorite, setIsFavorite] = useState(projectModel.isFavorite);
   const webView = useRef(null);
   const [canGoBack, setCanGoBack] = useState(false);
   useEffect(() => {
@@ -24,11 +31,8 @@ const DetailPage = props => {
       BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     };
   });
-  const params = props.navigation.state.params;
-  const title = projectModel.full_name || projectModel.fullName;
-  const {projectModel} = params;
   const THEME_COLOR = '#678';
-  const _url = projectModel.html_url || TRENDING_URL + projectModel.fullName;
+  const title = projectModel.item.full_name || projectModel.item.fullName;
   /** 处理 Android 中的物理返回键 */
   const onBackPress = () => {
     onBack();
@@ -49,11 +53,27 @@ const DetailPage = props => {
     setCanGoBack(navState.canGoBack);
     setUrl(navState.url);
   };
+
+  const onFavoriteButtonClick = () => {
+    // const {projectModel} = params;
+    const _isFavorite = (projectModel.isFavorite = !projectModel.isFavorite);
+    callback(_isFavorite);
+    setIsFavorite(_isFavorite);
+    let key = projectModel.item.fullName
+      ? projectModel.item.fullName
+      : projectModel.item.id.toString();
+    if (projectModel.isFavorite) {
+      favoriteDao.saveFavoriteItem(key, JSON.stringify(projectModel.item));
+    } else {
+      favoriteDao.removeFavoriteItem(key);
+    }
+  };
+
   const renderRightButton = () => (
     <View style={{flexDirection: 'row'}}>
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={onFavoriteButtonClick}>
         <FontAwesome
-          name="star-o"
+          name={isFavorite ? 'star' : 'star-o'}
           size={20}
           style={{color: 'white', marginRight: 10}}
         />

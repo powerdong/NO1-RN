@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 08:55:41
- * @Update: 2020-06-20 09:37:05
+ * @Update: 2020-06-20 18:59:33
  * @Update log: 更新日志
  */
 import React from 'react';
@@ -10,8 +10,10 @@ import {NavigationActions} from 'react-navigation';
 import NavigationUtil from '../navigation/NavigationUtil';
 import DynamicTabNavigator from '../navigation/DynamicTabNavigator';
 import {connect} from 'react-redux';
-import useBackPress from '../common/useBackPress';
+import EventBus from 'react-native-event-bus';
 
+import useBackPress from '../common/useBackPress';
+import EventTypes from '../util/EventTypes';
 const HomePage = props => {
   useBackPress(onBackPress);
   // useEffect(() => {
@@ -34,7 +36,17 @@ const HomePage = props => {
   };
 
   NavigationUtil.navigation = props.navigation;
-  return <DynamicTabNavigator />;
+  return (
+    <DynamicTabNavigator
+      onNavigationStateChange={(prevState, newState, action) => {
+        EventBus.getInstance().fireEvent(EventTypes.bottom_tab_select, {
+          //发送底部tab切换的事件
+          from: prevState.index,
+          to: newState.index,
+        });
+      }}
+    />
+  );
 };
 
 const mapStateToProps = state => ({

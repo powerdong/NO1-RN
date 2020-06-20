@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-17 14:13:04
- * @Update: 2020-06-17 19:29:54
+ * @Update: 2020-06-20 16:54:56
  * @Update log: 更新日志
  */
 import Types from '../../action/types';
@@ -65,6 +65,15 @@ export default function onAction(state = defaultState, action) {
           ...state[action.storeName],
           hideLoadingMore: true,
           pageIndex: action.pageIndex,
+        },
+      };
+    // 刷新更新收藏状态
+    case Types.FLUSH_POPULAR_FAVORITE:
+      return {
+        ...state,
+        [action.storeName]: {
+          ...state[action.storeName],
+          projectModes: action.projectModes,
         },
       };
     default:
