@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-18 09:19:22
- * @Update: 2020-06-18 09:46:30
+ * @Update: 2020-06-20 09:15:02
  * @Update log: 更新日志
  */
 import React, {Component} from 'react';
@@ -33,14 +33,16 @@ export default class NavigationBar extends Component {
     titleView: PropTypes.element,
     titleLayoutStyle: ViewPropTypes.style,
     hide: PropTypes.bool,
-    statusButton: PropTypes.shape(StatusBarShape),
+    statusBar: PropTypes.shape(StatusBarShape),
     rightButton: PropTypes.element,
     leftButton: PropTypes.element,
   };
 
   static defaultProps = {
-    barStyle: 'light-content',
-    hidden: false,
+    statusBar: {
+      barStyle: 'light-content',
+      hidden: false,
+    },
   };
   render() {
     let statusBar = !this.props.statusBar.hidden ? (

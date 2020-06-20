@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-18 10:45:16
+ * @Update: 2020-06-20 08:43:24
  * @Update log: 更新日志
  */
 import React, {useEffect, useCallback, useRef, useState} from 'react';
@@ -101,7 +101,17 @@ const PopularTab = props => {
         data={_store(popular, storeName).projectModes}
         // 每项 Item
         renderItem={data => (
-          <PopularItem item={data.item} onSelect={() => {}} />
+          <PopularItem
+            item={data.item}
+            onSelect={() => {
+              NavigationUtil.goPage(
+                {
+                  projectModel: data.item,
+                },
+                'DetailPage',
+              );
+            }}
+          />
         )}
         keyExtractor={item => '' + item.id}
         // 下拉刷新

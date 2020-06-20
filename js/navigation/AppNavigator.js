@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 09:04:07
- * @Update: 2020-06-17 15:53:35
+ * @Update: 2020-06-20 09:00:04
  * @Update log: 更新日志
  */
 import {createSwitchNavigator, createAppContainer} from 'react-navigation';
@@ -40,7 +40,7 @@ const MainNavigator = createStackNavigator({
   DetailPage: {
     screen: DetailPage,
     navigationOptions: {
-      // headerShown: false,
+      headerShown: false,
     },
   },
   FetchDemoPage: {

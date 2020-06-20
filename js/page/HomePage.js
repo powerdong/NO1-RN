@@ -1,24 +1,26 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 08:55:41
- * @Update: 2020-06-17 15:37:19
+ * @Update: 2020-06-20 09:37:05
  * @Update log: 更新日志
  */
-import React, {useEffect} from 'react';
-import {BackHandler} from 'react-native';
+import React from 'react';
+// import {BackHandler} from 'react-native';
 import {NavigationActions} from 'react-navigation';
 import NavigationUtil from '../navigation/NavigationUtil';
 import DynamicTabNavigator from '../navigation/DynamicTabNavigator';
 import {connect} from 'react-redux';
+import useBackPress from '../common/useBackPress';
 
 const HomePage = props => {
-  useEffect(() => {
-    // 物理返回键的监听
-    BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    };
-  });
+  useBackPress(onBackPress);
+  // useEffect(() => {
+  // 物理返回键的监听
+  // BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  // return () => {
+  // BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+  // };
+  // });
 
   /** 处理 Android 中的物理返回键 */
   const onBackPress = () => {
