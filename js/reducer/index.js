@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-16 16:43:44
- * @Update: 2020-06-20 14:50:37
+ * @Update: 2020-06-22 19:16:43
  * @Update log: 更新日志
  */
 import {combineReducers} from 'redux';
@@ -10,6 +10,7 @@ import popular from './popular';
 import trending from './trending';
 import language from './language';
 import favorite from './favorite';
+import search from './search';
 import {RootNavigator, rootCom} from '../navigation/AppNavigator';
 
 const navState = RootNavigator.router.getStateForAction(
@@ -28,6 +29,7 @@ const index = combineReducers({
   trending,
   language,
   favorite,
+  search,
 });
 
 export default index;

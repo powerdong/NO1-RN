@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-18 10:24:35
- * @Update: 2020-06-18 10:30:51
+ * @Update: 2020-06-22 10:53:55
  * @Update log: 更新日志
  */
 import Types from '../../action/types';
@@ -9,7 +9,7 @@ import {FLAG_LANGUAGE} from '../../expand/dao/LanguageDao';
 
 const defaultState = {
   languages: [],
-  keys: ['Java', 'Android', 'iOS', 'React', 'React Native', 'PHP'],
+  keys: [],
 };
 export default function onAction(state = defaultState, action) {
   switch (action.type) {

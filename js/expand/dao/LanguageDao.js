@@ -1,10 +1,10 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-18 10:17:29
- * @Update: 2020-06-18 10:25:06
+ * @Update: 2020-06-22 16:44:06
  * @Update log: 更新日志
  */
-import {AsyncStorage} from 'react-native';
+import {AsyncStorage} from '@react-native-community/async-storage';
 import langs from '../../res/data/langs';
 import keys from '../../res/data/keys';
 

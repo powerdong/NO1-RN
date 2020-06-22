@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 11:13:08
- * @Update: 2020-06-20 16:58:59
+ * @Update: 2020-06-22 19:58:57
  * @Update log: 更新日志
  */
 import React, {useEffect, useCallback, useRef, useState} from 'react';
@@ -246,6 +246,7 @@ const PopularPageTopNavigator = createMaterialTopTabNavigator(getTabs(), {
       marginBottom: 6,
     },
   },
+  lazy: true,
 });
 
 const mapStateToProps = state => ({
@@ -303,7 +304,7 @@ const PopularPage = props => {
   const renderRightButton = () => (
     <TouchableOpacity
       onPress={() => {
-        AnalyticsUtil.track('SearchButtonClick');
+        // AnalyticsUtil.track('SearchButtonClick');
         NavigationUtil.goPage({theme}, 'SearchPage');
       }}>
       <View style={{padding: 5, marginRight: 8}}>
@@ -343,7 +344,7 @@ const PopularPage = props => {
 };
 
 const mapPopularStateToProps = state => ({
-  keys: state.language.keys,
+  // keys: state.language.keys,
   theme: state.theme.theme,
 });
 const mapPopularDispatchToProps = dispatch => ({

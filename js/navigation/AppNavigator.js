@@ -1,7 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-15 09:04:07
- * @Update: 2020-06-20 09:00:04
+ * @Update: 2020-06-22 20:03:04
  * @Update log: 更新日志
  */
 import {createSwitchNavigator, createAppContainer} from 'react-navigation';
@@ -15,9 +15,12 @@ import {
 import WelcomePage from '../page/WelcomePage';
 import HomePage from '../page/HomePage';
 import DetailPage from '../page/DetailPage';
-import FetchDemoPage from '../page/FetchDemoPage';
-import AsyncStorageDemoPage from '../page/AsyncStorageDemoPage';
-import DataStoreDemoPage from '../page/DataStoreDemoPage';
+import WebViewPage from '../page/WebViewPage';
+import CustomKeyPage from '../page/CustomKeyPage';
+import SearchPage from '../page/SearchPage';
+import SortKeyPage from '../page/SortKeyPage';
+import AboutPage from '../page/about/AboutPage';
+import AboutMePage from '../page/about/AboutMePage';
 
 export const rootCom = 'Init'; // 设置根路由
 
@@ -43,22 +46,40 @@ const MainNavigator = createStackNavigator({
       headerShown: false,
     },
   },
-  FetchDemoPage: {
-    screen: FetchDemoPage,
+  WebViewPage: {
+    screen: WebViewPage,
     navigationOptions: {
-      // headerShown: false,
+      headerShown: false,
     },
   },
-  AsyncStorageDemoPage: {
-    screen: AsyncStorageDemoPage,
+  AboutPage: {
+    screen: AboutPage,
     navigationOptions: {
-      // headerShown: false,
+      headerShown: false,
     },
   },
-  DataStoreDemoPage: {
-    screen: DataStoreDemoPage,
+  AboutMePage: {
+    screen: AboutMePage,
     navigationOptions: {
-      // headerShown: false,
+      headerShown: false,
+    },
+  },
+  CustomKeyPage: {
+    screen: CustomKeyPage,
+    navigationOptions: {
+      headerShown: false,
+    },
+  },
+  SortKeyPage: {
+    screen: SortKeyPage,
+    navigationOptions: {
+      headerShown: false,
+    },
+  },
+  SearchPage: {
+    screen: SearchPage,
+    navigationOptions: {
+      headerShown: false,
     },
   },
 });

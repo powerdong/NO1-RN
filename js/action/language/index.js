@@ -1,13 +1,7 @@
 /*
  * @Author: Lambda
  * @Begin: 2020-06-18 10:16:24
- * @Update: 2020-06-18 10:19:23
- * @Update log: 更新日志
- */
-/*
- * @Author: Lambda
- * @Begin: 2020-06-17 09:23:24
- * @Update: 2020-06-18 10:16:30
+ * @Update: 2020-06-22 10:52:24
  * @Update log: 更新日志
  */
 import Types from '../types';
